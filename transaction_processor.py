@@ -38,10 +38,12 @@ def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
     num_transactions = df.groupby("Month").size().to_dict()
     avg_debit_amount = df[df["Type"] == "Debit"]["Amount"].mean()
     avg_credit_amount = df[df["Type"] == "Credit"]["Amount"].astype(float).mean()
+    # Dynamically evaluated month in which there were transactions
+    transactions = {f"Number of transactions in {month}": f"{value:.0f}" for month, value in num_transactions.items()}
 
     return {
         "Total balance": total_balance,
-        "Number of transactions": num_transactions,
         "Average credit amount": avg_credit_amount,
-        "Average debit amount": avg_debit_amount
+        "Average debit amount": avg_debit_amount,
+        **transactions
     }
