@@ -1,0 +1,5 @@
+name: stori-task
+channels:
+  - conda-forge
+dependencies:
+  - pandas=2.2.1
