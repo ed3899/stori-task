@@ -3,3 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - pandas=2.2.1
+  - black=24.3.0
