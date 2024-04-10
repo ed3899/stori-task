@@ -31,11 +31,17 @@ def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
     # Format date
     df["Date"] = pd.to_datetime(df["Date"], format="%m/%d")
     df["Month"] = df["Date"].dt.strftime("%B")
+    # Categorize transaction type
+    df["Type"] = df["Amount"].apply(lambda x: "Credit" if float(x) > 0 else "Debit")
 
     total_balance = df["Amount"].sum()
     num_transactions = df.groupby("Month").size().to_dict()
+    avg_debit_amount = df[df["Type"] == "Debit"]["Amount"].mean()
+    avg_credit_amount = df[df["Type"] == "Credit"]["Amount"].astype(float).mean()
 
     return {
         "Total balance": total_balance,
         "Number of transactions": num_transactions,
+        "Average credit amount": avg_credit_amount,
+        "Average debit amount": avg_debit_amount
     }
