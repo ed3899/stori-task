@@ -19,12 +19,11 @@ transactions_table = dynamodb.Table(os.environ["TRANSACTION_TABLE_NAME"])
 def handler(event, context):
     bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
     object_key = event["Records"][0]["s3"]["object"]["key"]
-    print(bucket_name)
-    print(object_key)
+
     s3.download_file(bucket_name, object_key, "/tmp/temp_transactions.csv")
 
-    t = process_transactions("/tmp/temp_transactions.csv")
+    transactions_df = process_transactions("/tmp/temp_transactions.csv")
+    summary = calculate_summary(transactions_df)
+    formatted_summary = format_summary_email(summary)
 
-    print("I am working")
-    print(event)
-    print(t.to_dict())
+    print(formatted_summary)
