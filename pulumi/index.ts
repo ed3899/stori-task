@@ -56,10 +56,46 @@ const docsHandlerRole = new aws.iam.Role(`${projectName}-docsHandlerRole`, {
   },
 });
 
-new aws.iam.RolePolicyAttachment(`${projectName}-roleAttachment`, {
-  role: docsHandlerRole,
-  policyArn: aws.iam.ManagedPolicies.AWSLambdaExecute,
+const rolePolicyAttachment = new aws.iam.RolePolicyAttachment(
+  `${projectName}-roleAttachment`,
+  {
+    role: docsHandlerRole,
+    policyArn: aws.iam.ManagedPolicies.AWSLambdaExecute,
+  }
+);
+
+const s3Bucket = new aws.s3.Bucket(`${projectName}-s3Bucket-18723873787`, {
+  forceDestroy: true,
 });
+
+const publicAccessBlock = new aws.s3.BucketPublicAccessBlock(
+  "public-access-block",
+  {
+    bucket: s3Bucket.id,
+    blockPublicAcls: false,
+  }
+);
+
+const bucketPolicy = new aws.s3.BucketPolicy(
+  `${projectName}-s3BucketPolicy`,
+  {
+    bucket: s3Bucket.id,
+    policy: s3Bucket.arn.apply(arn =>
+      JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Principal: docsHandlerRole.arn,
+            Action: "s3:GetObject",
+            Resource: `${arn}/*`, // policy refers to bucket name explicitly
+          },
+        ],
+      })
+    ),
+  },
+  {dependsOn: [docsHandlerRole, rolePolicyAttachment]}
+);
 
 const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {
   role: docsHandlerRole.arn,
@@ -69,14 +105,12 @@ const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {
       TRANSACTION_TABLE_ARN: transactionTable.arn,
       ACCOUNT_TABLE_NAME: accountTable.name,
       ACCOUNT_TABLE_ARN: accountTable.arn,
+      S3_BUCKET_NAME: s3Bucket.bucket,
     },
   },
   imageUri: image.imageUri,
   packageType: "Image",
-});
-
-const s3Bucket = new aws.s3.Bucket(`${projectName}-s3Bucket-18723873787`, {
-  forceDestroy: true,
+  timeout: 10,
 });
 
 s3Bucket.onObjectCreated("docsHandler", lambdaFn);
