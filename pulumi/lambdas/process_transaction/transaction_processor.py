@@ -20,11 +20,11 @@ def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
     :param df: A DataFrame containing the transactions.
     :return: A dictionary with summary information.
     """
-    # New dataframe
-    new_df = pd.DataFrame(columns=["Amount", "Date", "Month", "Type"])
+    # Clone the dataframe
+    df_clone = df.copy(deep=True)
 
     # Conditionally convert to either positive or negative float
-    new_df["Amount"] = df["Transaction"].apply(
+    df_clone["Amount"] = df_clone["Transaction"].apply(
         lambda x: (
             float(x[1:])
             if isinstance(x, str) and x[0] == "+"
@@ -33,17 +33,21 @@ def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
     )
 
     # Format date
-    new_df["Date"] = pd.to_datetime(df["Date"], format="%m/%d")
-    new_df["Month"] = df["Date"].dt.strftime("%B")
+    df_clone["Date"] = pd.to_datetime(df_clone["Date"], format="%m/%d")
+    df_clone["Month"] = df_clone["Date"].dt.strftime("%B")
 
     # Categorize transaction type
-    new_df["Type"] = df["Amount"].apply(lambda x: "Credit" if float(x) > 0 else "Debit")
+    df_clone["Type"] = df_clone["Amount"].apply(
+        lambda x: "Credit" if float(x) > 0 else "Debit"
+    )
 
     # Summarize
-    total_balance = df["Amount"].sum()
-    num_transactions = df.groupby("Month").size().to_dict()
-    avg_debit_amount = df[df["Type"] == "Debit"]["Amount"].mean()
-    avg_credit_amount = df[df["Type"] == "Credit"]["Amount"].astype(float).mean()
+    total_balance = df_clone["Amount"].sum()
+    num_transactions = df_clone.groupby("Month").size().to_dict()
+    avg_debit_amount = df_clone[df_clone["Type"] == "Debit"]["Amount"].mean()
+    avg_credit_amount = (
+        df_clone[df_clone["Type"] == "Credit"]["Amount"].astype(float).mean()
+    )
 
     # Dynamically evaluate month in which there were transactions
     transactions = {
