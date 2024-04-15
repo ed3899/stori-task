@@ -33,7 +33,7 @@ const transactionTableBatchWritePolicy = new aws.iam.Policy(
   `${projectName}-transactionTableBatchWritePolicy`,
   {
     policy: {
-      Id: "",
+      Id: "SomeRandomId123",
       Version: "2012-10-17",
       Statement: [
         {
@@ -61,6 +61,26 @@ const accountTable = new aws.dynamodb.Table(`${projectName}-accountTable`, {
   ],
 });
 
+const accountTableWritePolicy = new aws.iam.Policy(
+  `${projectName}-accountTableWritePolicy`,
+  {
+    policy: {
+      Id: "SomeRandomIdas12232",
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Effect: "Allow",
+          Action: "dynamodb:PutItem",
+          Resource: accountTable.arn,
+        },
+      ],
+    },
+  },
+  {
+    dependsOn: [accountTable],
+  }
+);
+
 const docsHandlerRole = new aws.iam.Role(`${projectName}-docsHandlerRole`, {
   assumeRolePolicy: {
     Version: "2012-10-17",
@@ -81,6 +101,14 @@ const lambdaRolePolicyAttachmentTransacTable = new aws.iam.RolePolicyAttachment(
   {
     role: docsHandlerRole,
     policyArn: transactionTableBatchWritePolicy.arn,
+  }
+);
+
+const lambdaRolePolAttachAccountTable = new aws.iam.RolePolicyAttachment(
+  `${projectName}-roleAttachment-accountsTable`,
+  {
+    role: docsHandlerRole,
+    policyArn: accountTableWritePolicy.arn,
   }
 );
 

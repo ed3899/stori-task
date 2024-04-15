@@ -1,5 +1,6 @@
 from typing import Any
 import pandas as pd
+from uuid import uuid4
 
 
 def process_transactions(file_path: str) -> pd.DataFrame:
@@ -10,10 +11,13 @@ def process_transactions(file_path: str) -> pd.DataFrame:
     :return: A DataFrame containing the transactions.
     """
     df = pd.read_csv(file_path)
+
+    print(f"Proccessing dataframe {df.head(3)}")
+
     return df
 
 
-def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
+def calculate_summary(df: pd.DataFrame, account_id: str) -> dict[str, Any]:
     """
     Calculates summary information for the account transactions.
 
@@ -51,13 +55,18 @@ def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
 
     # Dynamically evaluate month in which there were transactions
     transactions = {
-        f"{month}Transactions": f"{value:.0f}"
+        f"{month}Transactions": int(f"{value:.0f}")
         for month, value in num_transactions.items()
     }
 
-    return {
-        "total_balance": total_balance,
-        "avg_credit_amount": avg_credit_amount,
-        "avg_debit_amount": avg_debit_amount,
+    result = {
+        "id": account_id,
+        "total_balance": str(total_balance),
+        "avg_credit_amount": str(avg_credit_amount),
+        "avg_debit_amount": str(avg_debit_amount),
         **transactions,
     }
+
+    print(f"Got summary {result}")
+
+    return result
