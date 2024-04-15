@@ -14,8 +14,23 @@ const image = new awsx.ecr.Image(`${projectName}-ecrImage`, {
   dockerfile: "./lambdas/process_transaction/Dockerfile",
 });
 
-const dynamoDbTable = new aws.dynamodb.Table(`${projectName}-dynamoDbTable`, {
-  name: "my-dynamo-db-table",
+const transactionTable = new aws.dynamodb.Table(
+  `${projectName}-transactionTable`,
+  {
+    name: `${projectName}-transactionTable`,
+    billingMode: "PAY_PER_REQUEST",
+    hashKey: "id",
+    attributes: [
+      {
+        name: "id",
+        type: "S",
+      },
+    ],
+  }
+);
+
+const accountTable = new aws.dynamodb.Table(`${projectName}-accountTable`, {
+  name: `${projectName}-accountTable`,
   billingMode: "PAY_PER_REQUEST",
   hashKey: "id",
   attributes: [
@@ -50,8 +65,10 @@ const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {
   role: docsHandlerRole.arn,
   environment: {
     variables: {
-      DYNAMODB_TABLE_NAME: dynamoDbTable.name,
-      DYNAMODB_TABLE_ARN: dynamoDbTable.arn,
+      TRANSACTION_TABLE_NAME: transactionTable.name,
+      TRANSACTION_TABLE_ARN: transactionTable.arn,
+      ACCOUNT_TABLE_NAME: accountTable.name,
+      ACCOUNT_TABLE_ARN: accountTable.arn,
     },
   },
   imageUri: image.imageUri,
@@ -65,6 +82,7 @@ const s3Bucket = new aws.s3.Bucket(`${projectName}-s3Bucket-18723873787`, {
 s3Bucket.onObjectCreated("docsHandler", lambdaFn);
 
 export const repoUrl = repository.url;
-export const dynamoDbTableArn = dynamoDbTable.arn;
+export const transactionTableArn = transactionTable.arn;
+export const accountTableArn = accountTable.arn;
 export const bucketDomainName = s3Bucket.bucketDomainName;
 export const lambdaFnArn = lambdaFn.arn;

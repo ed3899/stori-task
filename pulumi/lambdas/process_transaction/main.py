@@ -1,6 +1,7 @@
 import json
 import logging
-import pandas
+import pandas as pd
+import boto3
 from transaction_processor import process_transactions, calculate_summary
 from email_sender import format_summary_email
 
