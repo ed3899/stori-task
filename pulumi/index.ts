@@ -29,6 +29,26 @@ const transactionTable = new aws.dynamodb.Table(
   }
 );
 
+const transactionTableBatchWritePolicy = new aws.iam.Policy(
+  `${projectName}-transactionTableBatchWritePolicy`,
+  {
+    policy: {
+      Id: "",
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Effect: "Allow",
+          Action: "dynamodb:BatchWriteItem",
+          Resource: transactionTable.arn,
+        },
+      ],
+    },
+  },
+  {
+    dependsOn: [transactionTable],
+  }
+);
+
 const accountTable = new aws.dynamodb.Table(`${projectName}-accountTable`, {
   name: `${projectName}-accountTable`,
   billingMode: "PAY_PER_REQUEST",
@@ -56,11 +76,27 @@ const docsHandlerRole = new aws.iam.Role(`${projectName}-docsHandlerRole`, {
   },
 });
 
-const rolePolicyAttachment = new aws.iam.RolePolicyAttachment(
-  `${projectName}-roleAttachment`,
+const lambdaRolePolicyAttachmentTransacTable = new aws.iam.RolePolicyAttachment(
+  `${projectName}-roleAttachment-transactionsTable`,
   {
     role: docsHandlerRole,
-    policyArn: aws.iam.ManagedPolicies.AWSLambdaExecute,
+    policyArn: transactionTableBatchWritePolicy.arn,
+  }
+);
+
+const lambdaRolePolicyAttachmentExecute = new aws.iam.RolePolicyAttachment(
+  `${projectName}-roleAttachment-execute`,
+  {
+    role: docsHandlerRole,
+    policyArn: aws.iam.ManagedPolicy.AWSLambdaExecute,
+  }
+);
+
+const lambdaRolePolicyAttachmentBasicExecute = new aws.iam.RolePolicyAttachment(
+  `${projectName}-roleAttachment-basicExecute`,
+  {
+    role: docsHandlerRole,
+    policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
   }
 );
 
@@ -94,7 +130,7 @@ const bucketPolicy = new aws.s3.BucketPolicy(
       })
     ),
   },
-  {dependsOn: [docsHandlerRole, rolePolicyAttachment]}
+  {dependsOn: [docsHandlerRole, lambdaRolePolicyAttachmentExecute]}
 );
 
 const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {

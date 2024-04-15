@@ -1,5 +1,6 @@
 from typing import Any
 import pandas as pd
+from decimal import Decimal
 
 
 def process_transactions(file_path: str) -> pd.DataFrame:
@@ -10,6 +11,9 @@ def process_transactions(file_path: str) -> pd.DataFrame:
     :return: A DataFrame containing the transactions.
     """
     df = pd.read_csv(file_path)
+
+    print(f"Proccessing dataframe {df.head(3)}")
+
     return df
 
 
@@ -51,9 +55,13 @@ def calculate_summary(df: pd.DataFrame) -> dict[str, Any]:
         for month, value in num_transactions.items()
     }
 
-    return {
-        "total_balance": total_balance,
-        "avg_credit_amount": avg_credit_amount,
-        "avg_debit_amount": avg_debit_amount,
+    result = {
+        "total_balance": Decimal(total_balance),
+        "avg_credit_amount": Decimal(avg_credit_amount),
+        "avg_debit_amount": Decimal(avg_debit_amount),
         **transactions,
     }
+
+    print(f"Got summary {result}")
+
+    return result

@@ -23,9 +23,9 @@ def handler(event, context):
         for index, row in transactions_df.iterrows():
             batch.put_item(
                 Item={
-                    "Id": int(row["Id"]),
-                    "Date": str(row["Date"]),
-                    "Transaction": str(row["Transaction"]),
+                    "id": str(row["Id"]),
+                    "date": str(row["Date"]),
+                    "transaction": str(row["Transaction"]),
                 }
             )
 
