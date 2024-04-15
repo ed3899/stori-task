@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 stori-task
 .aws-sam
+*venv
