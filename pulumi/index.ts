@@ -2,17 +2,19 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 
-const repository = new awsx.ecr.Repository("ecrRepository", {
+const projectName = "storiTaskByEdca3899";
+
+const repository = new awsx.ecr.Repository(`${projectName}-ecrRepo`, {
   forceDelete: true,
 });
 
-const image = new awsx.ecr.Image("ecrImage", {
+const image = new awsx.ecr.Image(`${projectName}-ecrImage`, {
   repositoryUrl: repository.url,
   context: "./lambdas/process_transaction",
   dockerfile: "./lambdas/process_transaction/Dockerfile",
 });
 
-const dynamoDbTable = new aws.dynamodb.Table("dynamoDBTable", {
+const dynamoDbTable = new aws.dynamodb.Table(`${projectName}-dynamoDbTable`, {
   name: "my-dynamo-db-table",
   billingMode: "PAY_PER_REQUEST",
   hashKey: "id",
@@ -24,7 +26,7 @@ const dynamoDbTable = new aws.dynamodb.Table("dynamoDBTable", {
   ],
 });
 
-const docsHandlerRole = new aws.iam.Role("docsHandlerRole", {
+const docsHandlerRole = new aws.iam.Role(`${projectName}-docsHandlerRole`, {
   assumeRolePolicy: {
     Version: "2012-10-17",
     Statement: [
@@ -39,44 +41,30 @@ const docsHandlerRole = new aws.iam.Role("docsHandlerRole", {
   },
 });
 
-new aws.iam.RolePolicyAttachment("zipTpsReportsFuncRoleAttach", {
+new aws.iam.RolePolicyAttachment(`${projectName}-roleAttachment`, {
   role: docsHandlerRole,
   policyArn: aws.iam.ManagedPolicies.AWSLambdaExecute,
 });
 
-const lambdaLayer = new aws.lambda.LayerVersion("lambdaLayer", {
-  layerName: "myLambdaLayer",
-  code: new pulumi.asset.AssetArchive({
-    config: new pulumi.asset.FileArchive(
-      "./lambdas/process_transaction/process_transaction_lambda_venv/lib"
-    ),
-  }),
-});
-
-const lambdaFn = new aws.lambda.Function("docsHandlerFunc", {
-  runtime: "python3.12",
+const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {
   role: docsHandlerRole.arn,
-  handler: "main.handler",
-  code: new pulumi.asset.AssetArchive({
-    ".": new pulumi.asset.FileArchive("./lambdas/process_transaction"),
-  }),
   environment: {
     variables: {
       DYNAMODB_TABLE_NAME: dynamoDbTable.name,
       DYNAMODB_TABLE_ARN: dynamoDbTable.arn,
     },
   },
-  layers: [lambdaLayer.arn],
+  imageUri: image.imageUri,
+  packageType: "Image",
 });
 
-const s3Bucket = new aws.s3.Bucket("s3Bucket", {
-  bucket: "my-s3-bucket",
+const s3Bucket = new aws.s3.Bucket(`${projectName}-s3Bucket-18723873787`, {
+  forceDestroy: true,
 });
 
 s3Bucket.onObjectCreated("docsHandler", lambdaFn);
 
 export const repoUrl = repository.url;
-export const dynamoDbTableArn = dynamoDbTable.arn
-export const bucketDomainName = s3Bucket.bucketDomainName
-export const lambdaFnArn = lambdaFn.arn
-
+export const dynamoDbTableArn = dynamoDbTable.arn;
+export const bucketDomainName = s3Bucket.bucketDomainName;
+export const lambdaFnArn = lambdaFn.arn;
