@@ -1,6 +1,10 @@
 from typing import Any
+from email.message import EmailMessage
+import tabulate
+import base64
 
-def format_summary_email(summary: dict[str, Any], depth: int = 0) -> str:
+
+def format_summary_email(summary: dict[str, Any]):
     """
     Formats the summary information as an email, accounting for nested dictionaries.
 
@@ -8,15 +12,29 @@ def format_summary_email(summary: dict[str, Any], depth: int = 0) -> str:
     :param depth: The current depth of nesting (default is 0).
     :return: A string containing the formatted email.
     """
-    email_content = ""
-    for key, value in summary.items():
-        if isinstance(value, dict):
-            # Add indentation
-            email_content += f"{'  ' * depth}{key}:\n"
-            # Recurse until you find a value
-            email_content += format_summary_email(value, depth + 1)
-        else:
-            # Normal content with indentation
-            email_content += f"{'  ' * depth}{key}: {value}\n"
+    # Convert the image to base64 for embedding in HTML
+    with open("./stori_logo.jpg", "rb") as image_file:
+        image_data = base64.b64encode(image_file.read()).decode()
 
-    return email_content
+    # Convert the dictionary to a formatted table
+    table = tabulate.tabulate(summary.items(), tablefmt="html")
+
+    # Create an email message with HTML content
+    msg = EmailMessage()
+    msg.set_content(
+        f"""
+        <html>
+            <body>
+                <h2>Transaction Details:</h2>
+                <img src="data:image/jpeg;base64,{image_data}" alt="Logo">
+                {table}
+            </body>
+        </html>
+        """,
+        subtype="html",
+    )
+    msg["Subject"] = "Transaction Summary"
+    msg["From"] = "sender@example.com"
+    msg["To"] = "recipient@example.com"
+
+    return msg

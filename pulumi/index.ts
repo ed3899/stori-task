@@ -174,7 +174,7 @@ const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {
   },
   imageUri: image.imageUri,
   packageType: "Image",
-  timeout: 10,
+  timeout: 20,
 });
 
 s3Bucket.onObjectCreated("docsHandler", lambdaFn);

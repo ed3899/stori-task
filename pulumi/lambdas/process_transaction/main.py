@@ -41,4 +41,4 @@ def handler(event, context):
     # Format summary for email
     formatted_summary = format_summary_email(summary)
 
-    print(formatted_summary)
+    print(formatted_summary.as_string())
