@@ -44,6 +44,15 @@ new aws.iam.RolePolicyAttachment("zipTpsReportsFuncRoleAttach", {
   policyArn: aws.iam.ManagedPolicies.AWSLambdaExecute,
 });
 
+const lambdaLayer = new aws.lambda.LayerVersion("lambdaLayer", {
+  layerName: "myLambdaLayer",
+  code: new pulumi.asset.AssetArchive({
+    config: new pulumi.asset.FileArchive(
+      "./lambdas/process_transaction/process_transaction_lambda_venv/lib"
+    ),
+  }),
+});
+
 const lambdaFn = new aws.lambda.Function("docsHandlerFunc", {
   runtime: "python3.12",
   role: docsHandlerRole.arn,
@@ -57,6 +66,7 @@ const lambdaFn = new aws.lambda.Function("docsHandlerFunc", {
       DYNAMODB_TABLE_ARN: dynamoDbTable.arn,
     },
   },
+  layers: [lambdaLayer.arn],
 });
 
 const s3Bucket = new aws.s3.Bucket("s3Bucket", {
@@ -66,3 +76,7 @@ const s3Bucket = new aws.s3.Bucket("s3Bucket", {
 s3Bucket.onObjectCreated("docsHandler", lambdaFn);
 
 export const repoUrl = repository.url;
+export const dynamoDbTableArn = dynamoDbTable.arn
+export const bucketDomainName = s3Bucket.bucketDomainName
+export const lambdaFnArn = lambdaFn.arn
+
