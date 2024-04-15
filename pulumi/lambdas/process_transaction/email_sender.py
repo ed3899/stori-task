@@ -4,7 +4,7 @@ import tabulate
 import base64
 
 
-def format_summary_email(summary: dict[str, Any]):
+def format_summary_email(summary: dict[str, Any], logo_url: str):
     """
     Formats the summary information as an email, accounting for nested dictionaries.
 
@@ -12,9 +12,6 @@ def format_summary_email(summary: dict[str, Any]):
     :param depth: The current depth of nesting (default is 0).
     :return: A string containing the formatted email.
     """
-    # Convert the image to base64 for embedding in HTML
-    with open("./stori_logo.jpg", "rb") as image_file:
-        image_data = base64.b64encode(image_file.read()).decode()
 
     # Convert the dictionary to a formatted table
     table = tabulate.tabulate(summary.items(), tablefmt="html")
@@ -26,7 +23,7 @@ def format_summary_email(summary: dict[str, Any]):
         <html>
             <body>
                 <h2>Transaction Details:</h2>
-                <img src="data:image/jpeg;base64,{image_data}" alt="Logo">
+                <img src="{logo_url}" alt="Logo">
                 {table}
             </body>
         </html>

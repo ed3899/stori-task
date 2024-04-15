@@ -11,10 +11,18 @@ account_table = dynamodb.Table(os.environ["ACCOUNT_TABLE_NAME"])
 transactions_table = dynamodb.Table(os.environ["TRANSACTION_TABLE_NAME"])
 
 
+def object_url(bucket_name: str, key: str):
+    return f"https://{bucket_name}.s3.amazonaws.com/{key}"
+
+
 def handler(event, context):
-    bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
-    object_key = event["Records"][0]["s3"]["object"]["key"]
+    bucket_name: str = event["Records"][0]["s3"]["bucket"]["name"]
+    object_key: str = event["Records"][0]["s3"]["object"]["key"]
     temp_file_path = "/tmp/temp_transactions.csv"
+    stori_logo_url = object_url(bucket_name=bucket_name, key="stori_logo.jpg")
+
+    if not object_key.endswith(".csv"):
+        return
 
     s3.download_file(bucket_name, object_key, temp_file_path)
 
@@ -39,6 +47,6 @@ def handler(event, context):
     account_table.put_item(Item=summary)
 
     # Format summary for email
-    formatted_summary = format_summary_email(summary)
+    formatted_summary = format_summary_email(summary, logo_url=stori_logo_url)
 
     print(formatted_summary.as_string())

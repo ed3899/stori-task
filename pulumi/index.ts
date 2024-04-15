@@ -132,6 +132,12 @@ const s3Bucket = new aws.s3.Bucket(`${projectName}-s3Bucket-18723873787`, {
   forceDestroy: true,
 });
 
+const fileObject = new aws.s3.BucketObject(`${projectName}-storiLogo`, {
+  bucket: s3Bucket,
+  key: "stori_logo.jpg",
+  source: new pulumi.asset.FileAsset("./stori_logo.jpg"),
+});
+
 const publicAccessBlock = new aws.s3.BucketPublicAccessBlock(
   "public-access-block",
   {
