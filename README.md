@@ -1,6 +1,6 @@
 # Stori Task
 
-This is task designed to test Eduardo Alfredo Casanova Lope skills while applying for a Sr. Engineer position at Stori
+This is a task designed to test Eduardo Alfredo Casanova Lope skills while applying for a Sr. Engineer position at Stori
 
 ## Requirements
 
@@ -25,7 +25,7 @@ This is task designed to test Eduardo Alfredo Casanova Lope skills while applyin
 ![Lambda page](image-1.png)
 3. Look for the latest log stream
 ![Lambda stream](image-2.png)
-4. You should see the result output (an example is shown below)
+1. You should see the result output
 ![Cloudwatch lambda logs](image.png)
 
 ## System Design
