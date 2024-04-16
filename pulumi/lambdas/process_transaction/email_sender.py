@@ -11,8 +11,8 @@ def format_summary_email(summary: dict[str, Any], logo_url: str):
     Formats the summary information as an email, accounting for nested dictionaries.
 
     :param summary: A dictionary with summary information.
-    :param depth: The current depth of nesting (default is 0).
-    :return: A string containing the formatted email.
+    :param logo_url: The logo url.
+    :return: The formatted email.
     """
 
     # Convert the dictionary to a formatted table

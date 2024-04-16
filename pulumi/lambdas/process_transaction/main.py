@@ -12,10 +12,24 @@ transactions_table = dynamodb.Table(os.environ["TRANSACTION_TABLE_NAME"])
 
 
 def object_url(bucket_name: str, key: str):
+    """
+    Returns the URL of an object in an S3 bucket.
+
+    :param bucket_name: The name of the S3 bucket.
+    :param key: The key of the object in the S3 bucket.
+    :return: The URL of the object in the S3 bucket.
+    """
     return f"https://{bucket_name}.s3.amazonaws.com/{key}"
 
 
 def handler(event, context):
+    """
+    Process transactions data from an S3 object, calculate summary, store data in DynamoDB, and format summary for email.
+
+    :param event: The event data triggering the Lambda function.
+    :param context: The context object.
+    :return: A JSON response containing the formatted summary for email.
+    """
     bucket_name: str = event["Records"][0]["s3"]["bucket"]["name"]
     object_key: str = event["Records"][0]["s3"]["object"]["key"]
     temp_file_path = "/tmp/temp_transactions.csv"
@@ -32,7 +46,7 @@ def handler(event, context):
     # Get current transactions and store them
     transactions_df = process_transactions(temp_file_path)
     with transactions_table.batch_writer() as batch:
-        for index, row in transactions_df.iterrows():
+        for _, row in transactions_df.iterrows():
             batch.put_item(
                 Item={
                     "id": str(row["Id"]),
