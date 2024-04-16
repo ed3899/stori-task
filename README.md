@@ -1,6 +1,6 @@
 # Stori Task
 
-This is task designed to test my skills while applying for a Sr. Engineer position at Stori
+This is task designed to test Eduardo Alfredo Casanova Lope skills while applying for a Sr. Engineer position at Stori
 
 ## Requirements
 
@@ -24,3 +24,14 @@ This is task designed to test my skills while applying for a Sr. Engineer positi
 
 ## System Design
 
+### Picking the right tooling
+
+The first step consisted on picking the right language, either Python or Go.
+
+Python was picked because the problem at hand seemed to be more on the data processing end of things. The problem's pattern seemed to be more high level.
+
+Pandas was picked as the core library for taking on the task. It is a library with a mature ecosystem, production ready features and C bindings that may help us with performance.
+
+Although high performance may be an issue later down the road, assuming all things have been tried already (i.e worker pools, etc), the root of all evil is pre-optimization. We should focus first on getting it right, rather than getting it fast.
+
+Go may be an amazing language with easy to understand and to use concurrency patterns (i.e fan-it, fan-out, pipelines, channels, routines), but it was not initially designed with data processing in mind. It's zen consist on simple control over low-level features. Nonetheless, it has its place once you start needing a bulldozer for heavy data processing where the patterns may already be clear enough.
