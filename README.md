@@ -28,10 +28,38 @@ This is task designed to test Eduardo Alfredo Casanova Lope skills while applyin
 
 The first step consisted on picking the right language, either Python or Go.
 
-Python was picked because the problem at hand seemed to be more on the data processing end of things. The problem's pattern seemed to be more high level.
+Python was picked because the problem at hand seemed to be more on the data processing end of things. The problem's patterns seemed to be more high level.
 
 Pandas was picked as the core library for taking on the task. It is a library with a mature ecosystem, production ready features and C bindings that may help us with performance.
 
 Although high performance may be an issue later down the road, assuming all things have been tried already (i.e worker pools, etc), the root of all evil is pre-optimization. We should focus first on getting it right, rather than getting it fast.
 
 Go may be an amazing language with easy to understand and to use concurrency patterns (i.e fan-it, fan-out, pipelines, channels, routines), but it was not initially designed with data processing in mind. It's zen consist on simple control over low-level features. Nonetheless, it has its place once you start needing a bulldozer for heavy data processing where the patterns may already be clear enough.
+
+Conda was used as the environment manager for Python just because it was the already installed choice at hand and the developer shall pick the tools she considers the most productive ones, unless other tool had been chosen by someone else with higher status on the team.
+
+### IaC
+
+A serverless architecture was a clear requirement.
+
+A couple of choices were in mind to handle that.
+
+These were the requirements for a serverless framework:
+
+- Easy to use
+- Lambdas shall be easy to package and manage
+- Familiarity of dsl
+- Local testing if possible
+
+Here is a list of all of them. The last one being the one picked and all with some description of the thought process around them.
+
+1. [SAM](https://aws.amazon.com/serverless/sam/) - Mature, hard to use (packaging the lambdas was a pain), own dsl, local testing available, free.
+2. [AWS CDK](https://aws.amazon.com/cdk/) - Inmature (python's module), medium to use (packaging the lambdas was a pain), in python, local testing not available, free
+3. [Serverless framework](https://www.serverless.com/framework) - Mature, ???, own dsl, local testing available, partially free
+4. [Pulumi](https://www.pulumi.com/docs/) - Mature (Typescript), easy to use, typescript, local testing not available, partially free <- CHOICE
+
+The conclusion was that handling IaC was going to be easier with Typescript, a mature ecosystem and a streamlined processing of deploying the lambdas.
+
+It is also worth nothing that pulumi has a Python module, but because it was developed Typescript first, some of the features required for this task were not yet available for Python.
+
+Nonetheless, if language monopolization had been a requirement for the task. The choice would have been between AWS CDK or Serverless framework.
