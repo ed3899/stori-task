@@ -55,7 +55,7 @@ def calculate_summary(df: pd.DataFrame, account_id: str) -> dict[str, Any]:
 
     # Dynamically evaluate month in which there were transactions
     transactions = {
-        f"Number of transactions in ${month}": int(f"{value:.0f}")
+        f"Number of transactions in {month}": int(f"{value:.0f}")
         for month, value in num_transactions.items()
     }
 

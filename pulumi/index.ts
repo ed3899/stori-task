@@ -150,21 +150,29 @@ const bucketPolicy = new aws.s3.BucketPolicy(
   `${projectName}-s3BucketPolicy`,
   {
     bucket: s3Bucket.id,
-    policy: s3Bucket.arn.apply(arn =>
-      JSON.stringify({
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Principal: docsHandlerRole.arn,
-            Action: "s3:GetObject",
-            Resource: `${arn}/*`, // policy refers to bucket name explicitly
-          },
-        ],
-      })
-    ),
+    policy: s3Bucket.arn.apply(s3BucketArn => {
+      const _policy = docsHandlerRole.arn.apply(docsHandlerRoleArn =>
+        JSON.stringify({
+          Id: "ReadObject",
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Sid: "AllowGetObject",
+              Effect: "Allow",
+              Principal: {
+                AWS: docsHandlerRoleArn,
+              },
+              Action: "s3:GetObject",
+              Resource: `${s3BucketArn}/*`, // policy refers to bucket name explicitly
+            },
+          ],
+        })
+      );
+
+      return _policy;
+    }),
   },
-  {dependsOn: [docsHandlerRole, lambdaRolePolicyAttachmentExecute]}
+  {dependsOn: [docsHandlerRole, lambdaRolePolicyAttachmentExecute, s3Bucket]}
 );
 
 const lambdaFn = new aws.lambda.Function(`${projectName}-docsHandlerFunc`, {

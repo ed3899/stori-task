@@ -49,4 +49,21 @@ def handler(event, context):
     # Format summary for email
     formatted_summary = format_summary_email(summary, logo_url=stori_logo_url)
 
-    print(formatted_summary.as_string())
+    # Convert the MIMEText object to a string
+    plain_content_str = formatted_summary.as_string()
+
+    # Create the response body as a list containing the MIMEText string
+    response_body = [plain_content_str]
+
+    # Convert the response body to JSON
+    response_json = json.dumps(response_body)
+
+    result = {
+        "statusCode": 201,
+        "body": response_json,
+        "headers": {"Content-Type": "application/json"},
+    }
+
+    print(f"Final result {result}")
+
+    return result
