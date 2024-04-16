@@ -1,6 +1,5 @@
 from typing import Any
 import pandas as pd
-from uuid import uuid4
 
 
 def process_transactions(file_path: str) -> pd.DataFrame:
