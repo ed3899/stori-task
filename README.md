@@ -25,7 +25,7 @@ This is a task designed to test Eduardo Alfredo Casanova Lope skills while apply
 ![Lambda page](image-1.png)
 3. Look for the latest log stream
 ![Lambda stream](image-2.png)
-1. You should see the result output
+4. You should see the result output
 ![Cloudwatch lambda logs](image.png)
 
 ## System Design
@@ -70,6 +70,18 @@ It is also worth nothing that pulumi has a Python module, but because it was dev
 
 Nonetheless, if language monopolization had been a requirement for the task. The choice would have been between AWS CDK or Serverless framework.
 
+### Why DynamoDB instead of RDS?
+
+Time of development. Things would be different of course if there was money on the line. A schemaless and serverless database allows a developer to quickly try out a concept, especially if it's just a task. Nonetheless, if this was a production ready application, great emphasis would be put on modelling the right domain/schema/model/entity.
+
+### Why no auth?
+
+Time of development and maybe it would be the wrong level of abstraction.
+
+In the current architecture there is only one public S3 Bucket, however there should actually be two. One made public and the other one private.
+
+In the public one; we would put assets like the logo and in the private one; things such as `transactions.csv`, which would ideally only be put by an authenticated and authorized user (i.e maybe using Cognito)
+
 ### Why typings in python?
 
 Typing hints help a lot with intellisense improving DX. However, use them with caution
@@ -81,3 +93,12 @@ One of the bonus points in the task clearly expressed the option of using AWS La
 Running a docker compose file would have been counterproductive by affecting the speed of development.
 
 If local testing had been a requirement, then SAM would have been chosen.
+
+### Why not sending the email?
+
+Limitation of scope to the task.
+
+### Why not modularizing the `index.ts`?
+
+Practicality, this is only a task. Putting each resource into its own file is no big deal if later asked.
+If this was a ticket then of course, I'd had put those into their own files and with their own js docs.
